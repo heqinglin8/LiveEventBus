@@ -106,7 +106,7 @@ public final class LiveEventBusCore {
         Application application = AppUtils.getApp();
         String packageName = application.getPackageName();
         Log.i(TAG,"packageName:"+packageName);
-        return  this.with(packageName, key, type);
+        return this.with(packageName, key, type);
     }
 
     public synchronized <T> Observable<T> with(String moduleName, String key, Class<T> type) {
@@ -411,6 +411,7 @@ public final class LiveEventBusCore {
                 intent.setPackage(application.getPackageName());
             }
             intent.putExtra(IpcConst.KEY, key);
+            intent.putExtra(IpcConst.MODULE_KEY, module);
             try {
                 encoder.encode(intent, value);
                 application.sendBroadcast(intent);

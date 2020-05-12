@@ -7,7 +7,10 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import com.jeremyliao.lebapp.LiveEventBusDemo;
 import com.jeremyliao.liveeventbus.LiveEventBus;
+import com.tt52.module1_export.event.HelloWorldEvent;
+import com.tt52.module1_export.event.MySmartEventBus;
 
 /**
  * Created by liaohailiang on 2019/3/26.
@@ -20,6 +23,8 @@ public class IpcService extends Service {
         LiveEventBus
                 .get("key_test_broadcast", String.class)
                 .observeForever(observer);
+
+        MySmartEventBus.event1().observeForever(observer2);
     }
 
     @Override
@@ -40,6 +45,13 @@ public class IpcService extends Service {
         @Override
         public void onChanged(@Nullable String s) {
             Toast.makeText(IpcService.this, s, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Observer<HelloWorldEvent> observer2 = new Observer<HelloWorldEvent>() {
+        @Override
+        public void onChanged(@Nullable HelloWorldEvent helloWorldEvent) {
+            Toast.makeText(IpcService.this, "跨进程接收信息："+helloWorldEvent.name, Toast.LENGTH_SHORT).show();
         }
     };
 }

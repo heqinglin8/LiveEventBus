@@ -32,6 +32,18 @@ public final class LiveEventBus {
     }
 
     /**
+     * get observable by moduleName、key with type
+     * @param moduleName
+     * @param key
+     * @param type
+     * @param <T>
+     * @return
+     */
+    public static <T> Observable<T> get(String moduleName, String key, Class<T> type) {
+        return LiveEventBusCore.get().with(moduleName, key, type);
+    }
+
+    /**
      * get observable by key
      *
      * @param key
@@ -39,6 +51,16 @@ public final class LiveEventBus {
      */
     public static Observable<Object> get(String key) {
         return get(key, Object.class);
+    }
+
+    /**
+     * get observable by moduleName,key
+     *
+     * @param key
+     * @return
+     */
+    public static Observable<Object> get(String moduleName, String key) {
+        return get(moduleName, key, Object.class);
     }
 
     /**
