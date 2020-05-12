@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.jeremyliao.liveeventbus.ipc.IpcConst;
 import com.jeremyliao.liveeventbus.ipc.encode.IEncoder;
@@ -39,6 +40,8 @@ import java.util.logging.Level;
 
 public final class LiveEventBusCore {
 
+    private static final String TAG = "LiveEventBusCore";
+
     /**
      * 单例模式实现
      */
@@ -53,7 +56,12 @@ public final class LiveEventBusCore {
     /**
      * 存放LiveEvent
      */
-    private final Map<String, LiveEvent<Object>> bus;
+//    private final Map<String, LiveEvent<Object>> bus;
+
+    /**
+     * 存放HashMap<String, LiveEvent<Object>>
+     */
+    private final Map<String, Map<String, LiveEvent<Object>>> componentBusMap;
 
     /**
      * 可配置的项
@@ -76,7 +84,8 @@ public final class LiveEventBusCore {
     final InnerConsole console = new InnerConsole();
 
     private LiveEventBusCore() {
-        bus = new HashMap<>();
+//        bus = new HashMap<>();
+        componentBusMap = new HashMap<>();
         lifecycleObserverAlwaysActive = true;
         autoClear = false;
         logger = new LoggerManager(new DefaultLogger());
@@ -86,11 +95,30 @@ public final class LiveEventBusCore {
         registerReceiver();
     }
 
+//    public synchronized <T> Observable<T> with(String key, Class<T> type) {
+//        if (!bus.containsKey(key)) {
+//            bus.put(key, new LiveEvent<>(key));
+//        }
+//        return (Observable<T>) bus.get(key);
+//    }
+
     public synchronized <T> Observable<T> with(String key, Class<T> type) {
-        if (!bus.containsKey(key)) {
-            bus.put(key, new LiveEvent<>(key));
+        Application application = AppUtils.getApp();
+        String packageName = application.getPackageName();
+        Log.i(TAG,"packageName:"+packageName);
+        return  this.with(packageName, key, type);
+    }
+
+    public synchronized <T> Observable<T> with(String moduleName, String key, Class<T> type) {
+
+        if(!componentBusMap.containsKey(moduleName)){
+            componentBusMap.put(moduleName,new HashMap<String, LiveEvent<Object>>());
         }
-        return (Observable<T>) bus.get(key);
+        Map<String, LiveEvent<Object>> currentBus = componentBusMap.get(moduleName);
+        if (!currentBus.containsKey(key)) {
+            currentBus.put(key, new LiveEvent<>(moduleName,key));
+        }
+        return (Observable<T>) currentBus.get(key);
     }
 
     /**
@@ -144,12 +172,14 @@ public final class LiveEventBusCore {
 
         @NonNull
         private final String key;
+        private final String module;
         private final LifecycleLiveData<T> liveData;
         private final Map<Observer, ObserverWrapper<T>> observerMap = new HashMap<>();
         private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-        LiveEvent(@NonNull String key) {
+        LiveEvent(@NonNull String module, String key) {
             this.key = key;
+            this.module = module;
             this.liveData = new LifecycleLiveData<>();
         }
 
@@ -446,7 +476,7 @@ public final class LiveEventBusCore {
             public void removeObserver(@NonNull Observer<T> observer) {
                 super.removeObserver(observer);
                 if (autoClear && !liveData.hasObservers()) {
-                    LiveEventBusCore.get().bus.remove(key);
+                    LiveEventBusCore.get().componentBusMap.get(module).remove(key);
                 }
                 logger.log(Level.INFO, "observer removed: " + observer);
             }
@@ -536,16 +566,20 @@ public final class LiveEventBusCore {
 
         String getBusInfo() {
             StringBuilder sb = new StringBuilder();
-            for (String key : bus.keySet()) {
-                sb.append("Event name: " + key).append("\n");
-                ExternalLiveData liveData = bus.get(key).liveData;
-                sb.append("\tversion: " + liveData.getVersion()).append("\n");
-                sb.append("\thasActiveObservers: " + liveData.hasActiveObservers()).append("\n");
-                sb.append("\thasObservers: " + liveData.hasObservers()).append("\n");
-                sb.append("\tActiveCount: " + getActiveCount(liveData)).append("\n");
-                sb.append("\tObserverCount: " + getObserverCount(liveData)).append("\n");
-                sb.append("\tObservers: ").append("\n");
-                sb.append("\t\t" + getObserverInfo(liveData)).append("\n");
+            for(String module : componentBusMap.keySet()){
+                Map<String, LiveEvent<Object>> currentBus = componentBusMap.get(module);
+                sb.append("Module name: " + module).append("\n");
+                for (String key : currentBus.keySet()) {
+                    sb.append("\tEvent name: " + key).append("\n");
+                    ExternalLiveData liveData = currentBus.get(key).liveData;
+                    sb.append("\t\tversion: " + liveData.getVersion()).append("\n");
+                    sb.append("\t\thasActiveObservers: " + liveData.hasActiveObservers()).append("\n");
+                    sb.append("\t\thasObservers: " + liveData.hasObservers()).append("\n");
+                    sb.append("\t\tActiveCount: " + getActiveCount(liveData)).append("\n");
+                    sb.append("\t\tObserverCount: " + getObserverCount(liveData)).append("\n");
+                    sb.append("\t\tObservers: ").append("\n");
+                    sb.append("\t\t\t\t" + getObserverInfo(liveData)).append("\n");
+                }
             }
             return sb.toString();
         }
