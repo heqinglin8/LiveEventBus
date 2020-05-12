@@ -1,6 +1,7 @@
 package com.jeremyliao.eventbus.processor;
 
 import com.google.auto.service.AutoService;
+import com.jeremyliao.eventbus.base.annotation.EventType;
 import com.jeremyliao.eventbus.base.annotation.SmartEvent;
 import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
 import com.jeremyliao.eventbus.processor.bean.EventInfo;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -30,12 +32,14 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 
 /**
  * Created by liaohailiang on 2018/8/30.
@@ -54,6 +58,7 @@ public class SmartEventProcessor extends AbstractProcessor {
     Filer filer;
     Types types;
     Elements elements;
+    Messager messager;
 
     String defaultPackageName = null;
     String packageName = null;
@@ -68,6 +73,7 @@ public class SmartEventProcessor extends AbstractProcessor {
         filer = processingEnvironment.getFiler();
         types = processingEnvironment.getTypeUtils();
         elements = processingEnvironment.getElementUtils();
+        messager = processingEnvironment.getMessager();
     }
 
     @Override
@@ -86,6 +92,7 @@ public class SmartEventProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         System.out.println(TAG + "roundEnvironment: " + roundEnvironment);
+//        messager.printMessage(Diagnostic.Kind.WARNING,TAG + "roundEnvironment: " + roundEnvironment);
         if (!roundEnvironment.processingOver() && !isGenerateTargetClass) {
             processAnnotations(roundEnvironment);
             generateBusCode();
@@ -115,6 +122,34 @@ public class SmartEventProcessor extends AbstractProcessor {
                 eventInfos.add(eventInfo);
             }
         }
+
+//        for (Element elem : roundEnvironment.getElementsAnnotatedWith(EventType.class)) {
+//            if (elem.getKind() == ElementKind.CLASS) {
+//                // print fields
+//                for (Element enclosedElement : elem.getEnclosedElements()) {
+//                    if (enclosedElement.getKind() == ElementKind.FIELD) {
+//                        Set<Modifier> modifiers = enclosedElement.getModifiers();
+//                        StringBuilder sb = new StringBuilder();
+//                        if (modifiers.contains(Modifier.PRIVATE)) {
+//                            sb.append("private ");
+//                        } else if (modifiers.contains(Modifier.PROTECTED)) {
+//                            sb.append("protected ");
+//                        } else if (modifiers.contains(Modifier.PUBLIC)) {
+//                            sb.append("public ");
+//                        }
+//                        if (modifiers.contains(Modifier.STATIC))
+//                            sb.append("static ");
+//                        if (modifiers.contains(Modifier.FINAL))
+//                            sb.append("final ");
+//                        sb.append(enclosedElement.asType()).append(" ").append(enclosedElement.getSimpleName());
+//                        System.out.println(sb);
+//                        messager.printMessage(Diagnostic.Kind.WARNING,TAG+"sb:"+sb);
+//                    }
+//                }
+//            }
+//        }
+
+
         for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEventConfig.class)) {
             moduleName = getAnnotation(element, SmartEventConfig.class, "moduleName");
             busName = getAnnotation(element, SmartEventConfig.class, "busName");

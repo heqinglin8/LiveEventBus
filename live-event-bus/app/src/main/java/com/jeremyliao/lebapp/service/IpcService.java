@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.jeremyliao.lebapp.LiveEventBusDemo;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.tt52.module1_export.event.HelloWorldEvent;
 import com.tt52.module1_export.event.MySmartEventBus;
