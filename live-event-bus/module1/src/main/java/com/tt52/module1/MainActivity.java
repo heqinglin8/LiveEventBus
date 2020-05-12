@@ -13,22 +13,26 @@ import com.tt52.module1_export.event.HelloWorldEvent;
 import com.tt52.module1_export.event.MySmartEventBus;
 
 public class MainActivity extends AppCompatActivity {
-    private Observer<String> observer = new Observer<String>() {
+    public static final String KEY_TEST_IN_APP_MSG = "key_test_in_app_msg";
+
+    private Observer<Object> observer = new Observer<Object>() {
         @Override
-        public void onChanged(@Nullable String s) {
-            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+        public void onChanged(@Nullable Object s) {
+            Toast.makeText(MainActivity.this, s.toString()+"", Toast.LENGTH_SHORT).show();
         }
     };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        LiveEventBus.get(KEY_TEST_IN_APP_MSG).observe(this,observer);
+
 
         Button send = findViewById(R.id.send);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MySmartEventBus.event1().post(new HelloWorldEvent("我是谁？",null));
+                LiveEventBus.get(KEY_TEST_IN_APP_MSG).post("app 内的消息");
             }
         });
         Button sendacrossapp = findViewById(R.id.sendacrossapp);
@@ -36,16 +40,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 MySmartEventBus.event1().postAcrossApp(new HelloWorldEvent("给隔壁app发消息",null));
-            }
-        });
-
-        Button key_test_broadcast = findViewById(R.id.key_test_broadcast);
-        key_test_broadcast.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LiveEventBus
-                        .get("key_test_broadcast")
-                        .postAcrossApp("broadcast msg");
             }
         });
     }
