@@ -2,13 +2,13 @@ package com.tt52.module1_export.event;
 
 
 import com.jeremyliao.eventbus.base.annotation.EventType;
-import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
+import com.jeremyliao.eventbus.base.annotation.ModuleEvents;
 
 /**
  * Created by liaohailiang on 2019-08-30.
  */
-@SmartEventConfig(packageName = "com.tt52.module1_export.event",moduleName = "com.tt52.module1.event", busName = "MySmartEventBus")
-public class BaseEventConfig {
+@ModuleEvents(packageName = "com.tt52.module1_export.event",moduleName = "com.tt52.module1.event")
+public class Module2Events {
 
     //不指定消息类型，那么消息的类型默认为Object
     @EventType(HelloWorldEvent.class)

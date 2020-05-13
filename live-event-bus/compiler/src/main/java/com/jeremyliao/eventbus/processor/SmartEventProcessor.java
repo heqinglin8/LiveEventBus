@@ -2,7 +2,7 @@ package com.jeremyliao.eventbus.processor;
 
 import com.google.auto.service.AutoService;
 import com.jeremyliao.eventbus.base.annotation.EventType;
-import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
+import com.jeremyliao.eventbus.base.annotation.ModuleEvents;
 import com.jeremyliao.eventbus.processor.bean.EventInfo;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -38,7 +38,6 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 
 /**
  * Created by liaohailiang on 2018/8/30.
@@ -53,6 +52,7 @@ public class SmartEventProcessor extends AbstractProcessor {
     private static final String OBSERVABLE_CLASS_NAME = "Observable";
     private static final String EVENTBUS_PACKAGE_NAME = "com.jeremyliao.liveeventbus";
     private static final String EVENTBUS_CLASS_NAME = "LiveEventBus";
+    private static final String BUSNAME_MARK = "Bus";
 
     Filer filer;
     Types types;
@@ -79,7 +79,7 @@ public class SmartEventProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<>();
-        annotations.add(SmartEventConfig.class.getCanonicalName());
+        annotations.add(ModuleEvents.class.getCanonicalName());
         annotations.add(EventType.class.getCanonicalName());
         return annotations;
     }
@@ -100,10 +100,10 @@ public class SmartEventProcessor extends AbstractProcessor {
     }
 
     private void processAnnotations(RoundEnvironment roundEnvironment) {
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEventConfig.class)) {
-            moduleName = getAnnotation(element, SmartEventConfig.class, "moduleName");
-            busName = getAnnotation(element, SmartEventConfig.class, "busName");
-            packageName = getAnnotation(element, SmartEventConfig.class, "packageName");
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(ModuleEvents.class)) {
+            moduleName = getAnnotation(element, ModuleEvents.class, "moduleName");
+            busName = getAnnotation(element, ModuleEvents.class, "busName");
+            packageName = getAnnotation(element, ModuleEvents.class, "packageName");
 
             TypeElement typeElement = (TypeElement) element;
             String className = typeElement.getSimpleName().toString();
@@ -113,7 +113,7 @@ public class SmartEventProcessor extends AbstractProcessor {
                 defaultPackageName = packageName;
             }
             if(busName == null || "".equals(packageName)){
-                busName = className + "Bus";
+                busName = className + BUSNAME_MARK;
             }
             eventInfos.clear();
 

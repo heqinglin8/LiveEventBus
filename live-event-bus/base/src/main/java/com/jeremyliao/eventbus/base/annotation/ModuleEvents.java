@@ -6,11 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by liaohailiang on 2018/8/24.
+ * packageName 是包名
+ * moduleName 组件名，一般用组件所在包名
+ * busName 业务名字用来调用，可以不写，默认用类的名字_Bus当作调用名
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface SmartEventConfig {
+public @interface ModuleEvents {
     String packageName();
     String moduleName();
     String busName() default "";

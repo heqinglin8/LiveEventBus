@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.tt52.module1_export.event.HelloWorldEvent;
-import com.tt52.module1_export.event.MySmartEventBus;
+import com.tt52.module1_export.event.Module1EventsManager;
 
 /**
  * Created by liaohailiang on 2019/3/26.
@@ -23,7 +23,7 @@ public class IpcService extends Service {
                 .get("key_test_broadcast", String.class)
                 .observeForever(observer);
 
-        MySmartEventBus.EVENT1().observeForever(observer2);
+        Module1EventsManager.EVENT1().observeForever(observer2);
     }
 
     @Override
