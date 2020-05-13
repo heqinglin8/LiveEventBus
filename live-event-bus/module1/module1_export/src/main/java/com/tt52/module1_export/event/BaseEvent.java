@@ -7,7 +7,7 @@ import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
 /**
  * Created by liaohailiang on 2019-08-30.
  */
-@SmartEventConfig(packageName = "com.tt52.module1_export.event",moduleName = "com.tt52.module1.event", busName = "MyEventBus")
+@SmartEventConfig(packageName = "com.tt52.module1_export.event",moduleName = "com.tt52.module1.event")
 public class BaseEvent {
 
     //不指定消息类型，那么消息的类型默认为Object

@@ -2,7 +2,6 @@ package com.jeremyliao.eventbus.processor;
 
 import com.google.auto.service.AutoService;
 import com.jeremyliao.eventbus.base.annotation.EventType;
-import com.jeremyliao.eventbus.base.annotation.SmartEvent;
 import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
 import com.jeremyliao.eventbus.processor.bean.EventInfo;
 import com.squareup.javapoet.ClassName;
@@ -80,7 +79,6 @@ public class SmartEventProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<>();
-        annotations.add(com.jeremyliao.eventbus.base.annotation.SmartEvent.class.getCanonicalName());
         annotations.add(SmartEventConfig.class.getCanonicalName());
         annotations.add(EventType.class.getCanonicalName());
         return annotations;
@@ -128,10 +126,16 @@ public class SmartEventProcessor extends AbstractProcessor {
             moduleName = getAnnotation(element, SmartEventConfig.class, "moduleName");
             busName = getAnnotation(element, SmartEventConfig.class, "busName");
             packageName = getAnnotation(element, SmartEventConfig.class, "packageName");
+
+            TypeElement typeElement = (TypeElement) element;
+            String className = typeElement.getSimpleName().toString();
             PackageElement packageElement = elements.getPackageOf(element);
             String packageName = packageElement.getQualifiedName().toString();
             if (defaultPackageName == null) {
                 defaultPackageName = packageName;
+            }
+            if(busName == null || "".equals(packageName)){
+                busName = className + "Bus";
             }
             eventInfos.clear();
 

@@ -13,5 +13,5 @@ import java.lang.annotation.Target;
 public @interface SmartEventConfig {
     String packageName();
     String moduleName();
-    String busName();
+    String busName() default "";
 }
