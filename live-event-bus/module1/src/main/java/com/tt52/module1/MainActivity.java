@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         sendacrossapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MySmartEventBus.event1().postAcrossApp(new HelloWorldEvent("给隔壁app发消息",null));
+                MySmartEventBus.EVENT1().postAcrossApp(new HelloWorldEvent("给隔壁app发消息",null));
             }
         });
     }

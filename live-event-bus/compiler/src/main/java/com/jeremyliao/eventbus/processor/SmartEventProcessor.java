@@ -65,6 +65,7 @@ public class SmartEventProcessor extends AbstractProcessor {
     String moduleName = null;
     String busName = null;
     List<EventInfo> eventInfos = new ArrayList<>();
+    List<EventInfo> eventInfos2 = new ArrayList<>();
     boolean isGenerateTargetClass = false;
 
     @Override
@@ -81,6 +82,7 @@ public class SmartEventProcessor extends AbstractProcessor {
         Set<String> annotations = new LinkedHashSet<>();
         annotations.add(com.jeremyliao.eventbus.base.annotation.SmartEvent.class.getCanonicalName());
         annotations.add(SmartEventConfig.class.getCanonicalName());
+        annotations.add(EventType.class.getCanonicalName());
         return annotations;
     }
 
@@ -95,65 +97,62 @@ public class SmartEventProcessor extends AbstractProcessor {
 //        messager.printMessage(Diagnostic.Kind.WARNING,TAG + "roundEnvironment: " + roundEnvironment);
         if (!roundEnvironment.processingOver() && !isGenerateTargetClass) {
             processAnnotations(roundEnvironment);
-            generateBusCode();
         }
         return true;
     }
 
     private void processAnnotations(RoundEnvironment roundEnvironment) {
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEvent.class)) {
-            TypeElement typeElement = (TypeElement) element;
-            PackageElement packageElement = elements.getPackageOf(element);
-            String packageName = packageElement.getQualifiedName().toString();
-            String className = typeElement.getSimpleName().toString();
-            if (defaultPackageName == null) {
-                defaultPackageName = packageName;
-            }
-            String targetClassName = packageName + "." + className;
-            List<Object> keys = getAnnotation(element, SmartEvent.class, "keys");
-            if (keys != null && keys.size() > 0) {
-                for (Object key : keys) {
-                    String processedKey = key.toString().replaceAll("\"", "").trim();
-                    EventInfo eventInfo = new EventInfo(processedKey, targetClassName);
-                    eventInfos.add(eventInfo);
-                }
-            } else {
-                EventInfo eventInfo = new EventInfo(className, targetClassName);
-                eventInfos.add(eventInfo);
-            }
-        }
-
-//        for (Element elem : roundEnvironment.getElementsAnnotatedWith(EventType.class)) {
-//            if (elem.getKind() == ElementKind.CLASS) {
-//                // print fields
-//                for (Element enclosedElement : elem.getEnclosedElements()) {
-//                    if (enclosedElement.getKind() == ElementKind.FIELD) {
-//                        Set<Modifier> modifiers = enclosedElement.getModifiers();
-//                        StringBuilder sb = new StringBuilder();
-//                        if (modifiers.contains(Modifier.PRIVATE)) {
-//                            sb.append("private ");
-//                        } else if (modifiers.contains(Modifier.PROTECTED)) {
-//                            sb.append("protected ");
-//                        } else if (modifiers.contains(Modifier.PUBLIC)) {
-//                            sb.append("public ");
-//                        }
-//                        if (modifiers.contains(Modifier.STATIC))
-//                            sb.append("static ");
-//                        if (modifiers.contains(Modifier.FINAL))
-//                            sb.append("final ");
-//                        sb.append(enclosedElement.asType()).append(" ").append(enclosedElement.getSimpleName());
-//                        System.out.println(sb);
-//                        messager.printMessage(Diagnostic.Kind.WARNING,TAG+"sb:"+sb);
-//                    }
+//        for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEvent.class)) {
+//            TypeElement typeElement = (TypeElement) element;
+//            PackageElement packageElement = elements.getPackageOf(element);
+//            String packageName = packageElement.getQualifiedName().toString();
+//            String className = typeElement.getSimpleName().toString();
+//            if (defaultPackageName == null) {
+//                defaultPackageName = packageName;
+//            }
+//            String targetClassName = packageName + "." + className;
+//            List<Object> keys = getAnnotation(element, SmartEvent.class, "keys");
+//            if (keys != null && keys.size() > 0) {
+//                for (Object key : keys) {
+//                    String processedKey = key.toString().replaceAll("\"", "").trim();
+//                    EventInfo eventInfo = new EventInfo(processedKey, targetClassName);
+//                    eventInfos.add(eventInfo);
 //                }
+//            } else {
+//                EventInfo eventInfo = new EventInfo(className, targetClassName);
+//                eventInfos.add(eventInfo);
 //            }
 //        }
-
 
         for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEventConfig.class)) {
             moduleName = getAnnotation(element, SmartEventConfig.class, "moduleName");
             busName = getAnnotation(element, SmartEventConfig.class, "busName");
             packageName = getAnnotation(element, SmartEventConfig.class, "packageName");
+            PackageElement packageElement = elements.getPackageOf(element);
+            String packageName = packageElement.getQualifiedName().toString();
+            if (defaultPackageName == null) {
+                defaultPackageName = packageName;
+            }
+            eventInfos.clear();
+
+            System.out.println(TAG+"EventType elem"+element.toString()+" getSimpleName:"+element.getSimpleName()+"moduleName："+moduleName+"packageName："+packageName+"busName："+busName);
+            if (element.getKind() == ElementKind.CLASS) {
+                // print fields
+                for (Element enclosedElement : element.getEnclosedElements()) {
+                    if (enclosedElement.getKind() == ElementKind.FIELD) {
+                        com.sun.tools.javac.code.Type type = getAnnotation(enclosedElement, EventType.class, "value");
+                        String value = Object.class.getCanonicalName();
+                        if(type!=null){
+                            value = type.toString();
+                        }
+                        EventInfo eventInfo = new EventInfo(enclosedElement.getSimpleName().toString(), value);
+                        eventInfos.add(eventInfo);
+                        System.out.println(TAG+ " value:"+value);
+                    }
+                }
+                System.out.println(TAG+" eventInfos:"+ eventInfos);
+            }
+            generateBusCode();
         }
     }
 

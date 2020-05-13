@@ -23,7 +23,7 @@ public class IpcService extends Service {
                 .get("key_test_broadcast", String.class)
                 .observeForever(observer);
 
-        MySmartEventBus.event1().observeForever(observer2);
+        MySmartEventBus.EVENT1().observeForever(observer2);
     }
 
     @Override

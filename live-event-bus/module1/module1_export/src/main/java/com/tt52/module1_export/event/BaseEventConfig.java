@@ -11,6 +11,7 @@ import com.jeremyliao.eventbus.base.annotation.SmartEventConfig;
 public class BaseEventConfig {
 
     //不指定消息类型，那么消息的类型默认为Object
+    @EventType(HelloWorldEvent.class)
     public static final String EVENT1 = "event1";
 
     //指定消息类型为自定义Bean
@@ -20,5 +21,8 @@ public class BaseEventConfig {
     //指定消息类型为java原生类型
     @EventType(String.class)
     public static final String EVENT3 = "event3";
+
+    //不指定消息类型，那么消息的类型默认为Object
+    public static final String EVENT4 = "event1";
 
 }
