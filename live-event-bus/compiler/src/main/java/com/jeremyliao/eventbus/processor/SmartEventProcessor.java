@@ -100,28 +100,6 @@ public class SmartEventProcessor extends AbstractProcessor {
     }
 
     private void processAnnotations(RoundEnvironment roundEnvironment) {
-//        for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEvent.class)) {
-//            TypeElement typeElement = (TypeElement) element;
-//            PackageElement packageElement = elements.getPackageOf(element);
-//            String packageName = packageElement.getQualifiedName().toString();
-//            String className = typeElement.getSimpleName().toString();
-//            if (defaultPackageName == null) {
-//                defaultPackageName = packageName;
-//            }
-//            String targetClassName = packageName + "." + className;
-//            List<Object> keys = getAnnotation(element, SmartEvent.class, "keys");
-//            if (keys != null && keys.size() > 0) {
-//                for (Object key : keys) {
-//                    String processedKey = key.toString().replaceAll("\"", "").trim();
-//                    EventInfo eventInfo = new EventInfo(processedKey, targetClassName);
-//                    eventInfos.add(eventInfo);
-//                }
-//            } else {
-//                EventInfo eventInfo = new EventInfo(className, targetClassName);
-//                eventInfos.add(eventInfo);
-//            }
-//        }
-
         for (Element element : roundEnvironment.getElementsAnnotatedWith(SmartEventConfig.class)) {
             moduleName = getAnnotation(element, SmartEventConfig.class, "moduleName");
             busName = getAnnotation(element, SmartEventConfig.class, "busName");
